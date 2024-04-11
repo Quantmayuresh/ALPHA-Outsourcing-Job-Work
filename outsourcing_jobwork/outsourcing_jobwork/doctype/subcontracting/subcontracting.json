@@ -1,0 +1,416 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-03-02 14:58:00.257143",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "test",
+  "naming_series",
+  "in_or_out",
+  "challan_no",
+  "challan_date",
+  "out_entry_type",
+  "in_entry_type",
+  "column_break_tygob",
+  "supplier_id",
+  "supplier_name",
+  "vihicle_no",
+  "gate_no",
+  "subcontracting_operations",
+  "column_break_z4yru",
+  "linking_option",
+  "blanket_order",
+  "purchase_order",
+  "column_break_ian3de",
+  "company",
+  "posting_date",
+  "posting_time",
+  "column_break_jhwoa",
+  "source_warehouse",
+  "target_warehouse",
+  "without_order",
+  "dispatch_for",
+  "outsourcing_operations",
+  "section_break_62zph",
+  "items_subcontracting",
+  "loan_items_subcontracting",
+  "section_break_edp40",
+  "out_subcontracting_list",
+  "subcontracting_details_tab",
+  "in_finished_item_subcontracting",
+  "in_raw_item_subcontracting",
+  "rejection_target_warehouse",
+  "in_rejected_items_reasons_subcontracting",
+  "section_break_jf2yh",
+  "in_loan_items_subcontracting",
+  "section_break_q1xtc",
+  "bifurcation_out_subcontracting",
+  "address_details_tab",
+  "billing_address_section",
+  "supplier_address",
+  "column_break_aly36",
+  "sup_adderss",
+  "company_address_section",
+  "company_address",
+  "column_break_r7wmx",
+  "comp_address",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "OSJW-"
+  },
+  {
+   "fieldname": "supplier_id",
+   "fieldtype": "Link",
+   "label": "Supplier ID",
+   "options": "Supplier",
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "supplier_id.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name"
+  },
+  {
+   "fieldname": "column_break_tygob",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "in_or_out",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "IN Or OUT",
+   "options": "\nOUT\nIN",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.without_order == 0;",
+   "fieldname": "linking_option",
+   "fieldtype": "Link",
+   "label": "Select Linking Option",
+   "mandatory_depends_on": "eval: doc.in_or_out == 'OUT' && doc.entry_type == 'Outsourcing Job Work With Order';",
+   "options": "DocType"
+  },
+  {
+   "depends_on": "eval:doc.in_entry_type == 'Subcontracting' && doc.linking_option == 'Blanket Order' && doc.in_or_out == 'IN';",
+   "fieldname": "blanket_order",
+   "fieldtype": "Table MultiSelect",
+   "label": "Blanket Order",
+   "options": "Blanket Order Multi Select Outsourcing"
+  },
+  {
+   "depends_on": "eval:doc.in_entry_type == 'Subcontracting' && doc.linking_option == 'Purchase Order' && doc.in_or_out == 'IN';",
+   "fieldname": "purchase_order",
+   "fieldtype": "Table MultiSelect",
+   "label": "Purchase Order",
+   "options": "Purchase Order Multi Select Outsourcing"
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_jhwoa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "label": "Source Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "target_warehouse",
+   "fieldtype": "Link",
+   "label": "Target Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'OUT' && doc.entry_type != 'Material Loan Given';",
+   "fieldname": "outsourcing_operations",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Outsourcing Operations",
+   "options": "Outsourcing Operations"
+  },
+  {
+   "fieldname": "section_break_62zph",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null && (doc.blanket_order != null || doc.purchase_order != null )) || doc.without_order == 1;",
+   "fieldname": "rejection_target_warehouse",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Rejection Target Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Subcontracting",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.in_or_out == 'OUT';",
+   "fieldname": "out_entry_type",
+   "fieldtype": "Select",
+   "label": "OUT Entry Type",
+   "options": "Subcontracting\nMaterial Loan Given"
+  },
+  {
+   "depends_on": "eval:doc.in_or_out == 'IN';",
+   "fieldname": "in_entry_type",
+   "fieldtype": "Select",
+   "label": "IN Entry Type",
+   "options": "Subcontracting\nMaterial Loan Given"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'OUT' && doc.out_entry_type == 'Subcontracting';",
+   "fieldname": "items_subcontracting",
+   "fieldtype": "Table",
+   "label": "Items Subcontracting",
+   "options": "Items Subcontracting"
+  },
+  {
+   "fieldname": "column_break_z4yru",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'OUT' && doc.out_entry_type == 'Material Loan Given';",
+   "fieldname": "loan_items_subcontracting",
+   "fieldtype": "Table",
+   "label": "Loan Items Subcontracting",
+   "options": "Loan Items Subcontracting"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'IN' && doc.entry_type == 'Material Loan Given';",
+   "fieldname": "in_loan_items_subcontracting",
+   "fieldtype": "Table",
+   "label": "IN Loan Items Subcontracting",
+   "options": "IN Loan Items Subcontracting"
+  },
+  {
+   "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null && (doc.blanket_order != null || doc.purchase_order != null )) || doc.without_order == 1;",
+   "fieldname": "in_rejected_items_reasons_subcontracting",
+   "fieldtype": "Table",
+   "label": "IN Rejected Items Reasons Subcontracting",
+   "options": "IN Rejected Items Reasons Subcontracting"
+  },
+  {
+   "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null && (doc.blanket_order != null || doc.purchase_order != null )) || doc.without_order == 1;",
+   "fieldname": "in_finished_item_subcontracting",
+   "fieldtype": "Table",
+   "label": "IN Finished Item Subcontracting",
+   "options": "IN Finished Item Subcontracting"
+  },
+  {
+   "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null && (doc.blanket_order != null || doc.purchase_order != null )) || doc.without_order == 1;",
+   "fieldname": "in_raw_item_subcontracting",
+   "fieldtype": "Table",
+   "label": "IN Raw Item Subcontracting",
+   "options": "IN Raw Item Subcontracting"
+  },
+  {
+   "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null && (doc.blanket_order != null || doc.purchase_order != null )) || doc.without_order == 1;",
+   "fieldname": "bifurcation_out_subcontracting",
+   "fieldtype": "Table",
+   "label": "Bifurcation Out Subcontracting",
+   "options": "Bifurcation Out Subcontracting"
+  },
+  {
+   "fieldname": "section_break_jf2yh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_q1xtc",
+   "fieldtype": "Tab Break",
+   "label": "Bifurcation Out Subcontracting"
+  },
+  {
+   "fieldname": "test",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Test"
+  },
+  {
+   "fieldname": "column_break_ian3de",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.linking_option == null;",
+   "fieldname": "without_order",
+   "fieldtype": "Check",
+   "label": "Without Order"
+  },
+  {
+   "fieldname": "subcontracting_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Subcontracting Details"
+  },
+  {
+   "fieldname": "section_break_edp40",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null) || doc.without_order == 1;",
+   "fieldname": "out_subcontracting_list",
+   "fieldtype": "Table",
+   "label": "Out Subcontracting List",
+   "options": "Out Subcontracting List"
+  },
+  {
+   "fieldname": "address_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Address Details"
+  },
+  {
+   "fieldname": "billing_address_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Address"
+  },
+  {
+   "fieldname": "supplier_address",
+   "fieldtype": "Link",
+   "label": "Supplier Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "column_break_aly36",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sup_adderss",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "company_address_section",
+   "fieldtype": "Section Break",
+   "label": "Company Address"
+  },
+  {
+   "fieldname": "company_address",
+   "fieldtype": "Link",
+   "label": "Company Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "column_break_r7wmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "comp_address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'OUT' && doc.out_entry_type == 'Subcontracting';",
+   "fieldname": "subcontracting_operations",
+   "fieldtype": "Link",
+   "label": "Subcontracting Operations",
+   "options": "Subcontracting Operations"
+  },
+  {
+   "fieldname": "vihicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting';",
+   "fieldname": "challan_no",
+   "fieldtype": "Data",
+   "label": "Challan No",
+   "mandatory_depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting';"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting';",
+   "fieldname": "challan_date",
+   "fieldtype": "Date",
+   "label": "Challan Date",
+   "mandatory_depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting';"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting';",
+   "fieldname": "gate_no",
+   "fieldtype": "Data",
+   "label": "Gate No"
+  },
+  {
+   "depends_on": "eval: doc.in_or_out == 'OUT' && doc.out_entry_type == 'Subcontracting';",
+   "fieldname": "dispatch_for",
+   "fieldtype": "Select",
+   "label": "Dispatch For",
+   "options": "Process\nRework"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Stock Entry",
+   "link_fieldname": "custom_subcontracting"
+  }
+ ],
+ "modified": "2024-04-05 11:20:30.182098",
+ "modified_by": "Administrator",
+ "module": "Outsourcing JobWork",
+ "name": "Subcontracting",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
