@@ -139,6 +139,12 @@ function set_field_filter(frm) {
                 ["Purchase Order", "docstatus", '=', 1]
             ]
         },
+        {
+            field: "item_group",
+            filter: [
+                ["Item Group", "company", '=', frm.doc.company],
+            ]
+        },
     ];
 
     for (const i of field_filter) {
@@ -354,6 +360,23 @@ frappe.ui.form.on("Subcontracting", {
     },
 
 });
+
+
+frappe.ui.form.on('Subcontracting', {
+    item_group: function(frm) {
+        frm.set_query("raw_item_code", "items_subcontracting", function(doc, cdt, cdn) {
+            let d = locals[cdt][cdn];
+            return {
+                filters: [
+                    ['Item', 'custom_company', '=',frm.doc.company ],
+                    ['Item', 'item_group', '=',frm.doc.item_group ],
+
+                ]
+            };
+        });
+    }
+});	
+	
 // ================================================================================== Out Subcontracting List ================================================================================== 
 
 frappe.ui.form.on('Out Subcontracting List', {
