@@ -15,6 +15,7 @@
   "challan_date",
   "out_entry_type",
   "in_entry_type",
+  "item_group",
   "column_break_tygob",
   "supplier_id",
   "supplier_name",
@@ -287,6 +288,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval: (doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting' && doc.supplier_id != null && doc.company != null) || doc.without_order == 1;",
    "fieldname": "out_subcontracting_list",
    "fieldtype": "Table",
@@ -376,6 +378,13 @@
    "fieldtype": "Select",
    "label": "Dispatch For",
    "options": "Process\nRework"
+  },
+  {
+   "depends_on": "eval:doc.in_or_out == 'OUT';",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -386,7 +395,7 @@
    "link_fieldname": "custom_subcontracting"
   }
  ],
- "modified": "2024-04-05 11:20:30.182098",
+ "modified": "2024-04-12 11:52:53.041071",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Subcontracting",
