@@ -97,6 +97,7 @@ class Subcontracting(Document):
 		se = frappe.new_doc("Stock Entry")
 		se.stock_entry_type = "Material Transfer"
 		se.company = self.company
+		se.set_posting_time = True
 		se.posting_date = self.posting_date
 		for d in self.get(table):
 			se.append("items",
@@ -227,6 +228,7 @@ class Subcontracting(Document):
 												'weight_per_unit':ItemWeight(d.raw_item_code),
 												'rate_from_order': d.rate_from_order,
 												'subcontracting': d.subcontracting,
+												'remaining_quantity':d.production_remaining_quantity,
 											},),
 					else:
 						# bom_exist = frappe.get_value("Outsourcing BOM",j.in_item_code,'name')
@@ -262,6 +264,7 @@ class Subcontracting(Document):
 												'weight_per_unit':ItemWeight(finish_item_code),
 												'rate_from_order': d.rate_from_order,
 												'subcontracting': d.subcontracting,
+												'remaining_quantity':d.production_remaining_quantity,
 											},),
 							else:
 								frappe.msgprint(f"There is no 'Raw Item '{d.raw_item_code} defined at any Item master")
@@ -741,6 +744,7 @@ class Subcontracting(Document):
 				se = frappe.new_doc("Stock Entry")
 				se.stock_entry_type = "Manufacture"
 				se.company = self.company
+				se.set_posting_time = True
 				se.posting_date = self.posting_date
 				in_raw = None
 				in_raw = self.get('in_raw_item_subcontracting' , filters = {'reference_id': i.reference_id })

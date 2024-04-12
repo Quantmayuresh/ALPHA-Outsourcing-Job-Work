@@ -20,6 +20,7 @@
   "rate",
   "rate_from_order",
   "column_break_mjonb",
+  "remaining_quantity",
   "section_break_3vktf",
   "as_it_is",
   "column_break_0ovvi",
@@ -254,12 +255,17 @@
    "in_list_view": 1,
    "label": "Subcontracting",
    "options": "Subcontracting"
+  },
+  {
+   "fieldname": "remaining_quantity",
+   "fieldtype": "Float",
+   "label": "Remaining Quantity"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-26 14:53:50.560051",
+ "modified": "2024-04-12 13:39:46.724757",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "IN Finished Item Subcontracting",
