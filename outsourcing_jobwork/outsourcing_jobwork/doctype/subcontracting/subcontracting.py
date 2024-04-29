@@ -34,8 +34,9 @@ class Subcontracting(Document):
 			else:
 				self.stock_transfer_stock_entry('items_subcontracting' , 'raw_item_code' , 'production_quantity' , 'source_warehouse' , 'target_warehouse')
 		else:
-			if self.out_entry_type == 'Material Loan Given':
-				pass
+			if self.in_entry_type == 'Material Loan Given':
+				self.stock_transfer_stock_entry('in_loan_items_subcontracting' , 'finished_item_code' , 'in_quantity' , 'source_warehouse' , 'target_warehouse' )
+				self.loan_update_out_entry()
 			else:
 				self.manifacturing_stock_entry()
 				self.stock_transfer_stock_entry('in_rejected_items_reasons_subcontracting' , 'raw_item_code' , 'quantity' , 'source_warehouse' , 'target_warehouse')
@@ -43,6 +44,7 @@ class Subcontracting(Document):
 
 	def before_cancel(self):
 		self.cancel_update_out_entry()
+		self.loan_cancel_update_out_entry()
 
 
 # =================================================================================================== BOTH ===================================================================================================
@@ -100,13 +102,14 @@ class Subcontracting(Document):
 		se.set_posting_time = True
 		se.posting_date = self.posting_date
 		for d in self.get(table):
-			se.append("items",
-						{
-							"item_code": d.get(item_code),
-							"qty": d.get(quantity),
-							"s_warehouse": d.get(source_warehouse),
-							"t_warehouse": d.get(target_warehouse),
-						},)
+			if d.get(quantity):
+				se.append("items",
+							{
+								"item_code": d.get(item_code),
+								"qty": d.get(quantity),
+								"s_warehouse": d.get(source_warehouse),
+								"t_warehouse": d.get(target_warehouse),
+							},)
 		se.custom_subcontracting = self.name	
 		if se.items:
 			se.insert()
@@ -159,6 +162,17 @@ class Subcontracting(Document):
 								frappe.msgprint(f"There is no 'Raw Material'defined at Item master of Item {j.item_code}")
 		return item_list
 
+	@frappe.whitelist()
+	def calculating_total(self,child_table ,total_field):
+		table = self.get(child_table)
+		total = 0
+		for i in table:
+			field_data = i.get(total_field)
+			total = total + getVal(field_data)
+		return total
+	
+
+	
 # =================================================================================================== IN ===================================================================================================
 	@frappe.whitelist()
 	def set_out_sub_list(self):
@@ -168,7 +182,6 @@ class Subcontracting(Document):
 			if not supplier_id and not company:
 				frappe.throw('Please select supplier_id and company')
 			else :
-				
 				query = """
 									SELECT a.name name, b.raw_item_code ,b.production_quantity ,b.production_done_quantity , b.name reference_id , b.subcontracting_operations
 									FROM `tabSubcontracting` a
@@ -188,9 +201,6 @@ class Subcontracting(Document):
 
 
 				query += """ORDER BY b.raw_item_code """
-						
-
-
 
 				data = frappe.db.sql(query,tuple(paremeters),as_dict="True")
 				
@@ -207,6 +217,7 @@ class Subcontracting(Document):
 													'reference_id': i.reference_id,
 													'weight_per_unit':ItemWeight(i.raw_item_code),
 												},),
+		self.loan_set_in_list()
 			
 	@frappe.whitelist()
 	def set_out_list_in_finished_item(self):
@@ -269,8 +280,40 @@ class Subcontracting(Document):
 							else:
 								frappe.msgprint(f"There is no 'Raw Item '{d.raw_item_code} defined at any Item master")
 
+	
+	@frappe.whitelist()
+	def loan_set_in_list(self):
+		if self.in_or_out == 'IN' and self.in_entry_type == 'Material Loan Given':
+			supplier_id = self.supplier_id
+			company = self.company
+			if not supplier_id and not company:
+				frappe.throw('Please select supplier_id and company')
+			else :
+				query = """
+									SELECT a.name name, b.finished_item_code ,b.production_quantity ,b.production_done_quantity , b.name reference_id , b.target_warehouse
+									FROM `tabSubcontracting` a
+									LEFT JOIN `tabLoan Items Subcontracting` b ON a.name = b.parent
+									WHERE a.supplier_id = %s AND a.company = %s AND b.docstatus = 1 AND b.out_done = 0 AND a.out_entry_type = 'Material Loan Given'
+						"""
 
+				paremeters = [supplier_id , company]
+				query += """ORDER BY b.finished_item_code """
 
+				data = frappe.db.sql(query,tuple(paremeters),as_dict="True")
+				# frappe.throw(str(data))
+				for i in data:
+					self.append("in_loan_items_subcontracting",
+												{	'subcontracting': i.name ,
+													'finished_item_code': i.finished_item_code ,
+													'finished_item_name':ItemName(i.finished_item_code),
+													'source_warehouse': i.target_warehouse,
+													'target_warehouse': self.target_warehouse,
+													'available_quantity': get_available_quantity(i.finished_item_code , i.target_warehouse ) if i.finished_item_code and i.target_warehouse else 0 ,
+													'production_done_quantity':getVal(i.production_done_quantity) ,
+													'in_able_quantity': getVal(i.production_quantity) - getVal(i.production_done_quantity),
+													'reference_id': i.reference_id,
+													'weight_per_unit':ItemWeight(i.finished_item_code),
+												},),
 
 
 
@@ -374,6 +417,8 @@ class Subcontracting(Document):
 		self.set_table_data('in_finished_item_subcontracting' , 'target_warehouse' , self.target_warehouse ,)
 		self.set_out_subcontracting()
 		self.update_bifurcation_out_subcontracting()
+
+		self.calculating_total_in_qty()
 
 	@frappe.whitelist()
 	def update_bifurcation_out_subcontracting(self):
@@ -783,12 +828,31 @@ class Subcontracting(Document):
 					se.save()
 					se.submit()
 
+
+
+	@frappe.whitelist()
+	def calculating_total_in_qty(self):
+		self.total_in_qty = self.calculating_total('in_finished_item_subcontracting','total_quantity')
+
+
 	@frappe.whitelist()
 	def update_out_entry(self):
 		for i in self.get('bifurcation_out_subcontracting'):
 			doc = frappe.get_doc('Items Subcontracting',i.reference_id)
 			production_done_quantity = doc.production_done_quantity
 			updated_value = getVal(production_done_quantity) + getVal(i.production_quantity)
+			doc.production_done_quantity = updated_value
+			if doc.production_done_quantity == doc.production_quantity:
+				doc.out_done = True
+			doc.save()
+
+
+	@frappe.whitelist()
+	def loan_update_out_entry(self):
+		for i in self.get('in_loan_items_subcontracting'):
+			doc = frappe.get_doc('Loan Items Subcontracting',i.reference_id)
+			production_done_quantity = doc.production_done_quantity
+			updated_value = getVal(production_done_quantity) + getVal(i.in_quantity)
 			doc.production_done_quantity = updated_value
 			if doc.production_done_quantity == doc.production_quantity:
 				doc.out_done = True
@@ -800,6 +864,19 @@ class Subcontracting(Document):
 			doc = frappe.get_doc('Items Subcontracting',i.reference_id)
 			production_done_quantity = doc.production_done_quantity
 			updated_value = getVal(production_done_quantity) - getVal(i.production_quantity)
+			doc.production_done_quantity = updated_value
+			if doc.production_done_quantity == doc.production_quantity:
+				doc.out_done = True
+			else:
+				doc.out_done = False
+			doc.save()
+
+	@frappe.whitelist()
+	def loan_cancel_update_out_entry(self):
+		for i in self.get('in_loan_items_subcontracting'):
+			doc = frappe.get_doc('Loan Items Subcontracting',i.reference_id)
+			production_done_quantity = doc.production_done_quantity
+			updated_value = getVal(production_done_quantity) - getVal(i.in_quantity)
 			doc.production_done_quantity = updated_value
 			if doc.production_done_quantity == doc.production_quantity:
 				doc.out_done = True

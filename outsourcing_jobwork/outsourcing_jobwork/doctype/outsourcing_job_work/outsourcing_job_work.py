@@ -611,6 +611,7 @@ class OutsourcingJobWork(Document):
 			se = frappe.new_doc("Stock Entry")
 			se.stock_entry_type = "Material Transfer"
 			se.company = self.company
+			se.set_posting_time = True
 			se.posting_date = self.posting_date
 			for d in self.get('outsource_job_work_details' ,filters= {"is_supply_by_supplier" : False }):
 				count = count + 1
@@ -638,6 +639,7 @@ class OutsourcingJobWork(Document):
 					se = frappe.new_doc("Stock Entry")
 					se.stock_entry_type = "Manufacture"
 					se.company = self.company
+					se.set_posting_time = True
 					se.posting_date = self.posting_date
 					
 					all_core = self.get("finished_item_outsource_job_work_details" ,  filters={"reference_id": cd.outsourcing_job_work ,'quantity':['!=', 0]})
@@ -685,6 +687,7 @@ class OutsourcingJobWork(Document):
 			# 	se = frappe.new_doc("Stock Entry")
 			# 	se.stock_entry_type = "Material Transfer"
 			# 	se.company = self.company
+			# 	se.set_posting_time = True
 			# 	se.posting_date = self.posting_date
 			# 	for d in self.get('outsource_job_work_details' ,filters= {"is_supply_by_supplier" : False }):
 			# 		count = count + 1
@@ -715,6 +718,7 @@ class OutsourcingJobWork(Document):
 			se = frappe.new_doc("Stock Entry")
 			se.stock_entry_type = "Material Transfer"
 			se.company = self.company
+			se.set_posting_time = True
 			se.posting_date = self.posting_date
 			for d in self.get('finished_item_outsource_job_work_details'):
 				if d.cr_casting_rejection or d.mr_machine_rejection or d.rw_rework:
@@ -747,6 +751,7 @@ class OutsourcingJobWork(Document):
 			se = frappe.new_doc("Stock Entry")
 			se.stock_entry_type = "Material Transfer"
 			se.company = self.company
+			se.set_posting_time = True
 			se.posting_date = self.posting_date
 			for d in self.get('outsource_as_it_is_item'):
 				count = count + 1

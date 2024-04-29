@@ -139,6 +139,7 @@ class SubcontractingJobWork(Document):
 		se = frappe.new_doc("Stock Entry")
 		se.stock_entry_type = "Material Transfer"
 		se.company = self.company
+		se.set_posting_time = True
 		se.posting_date = self.posting_date
 		for d in self.get(table ,filters= {"is_supply_by_supplier" : False}):
 			se.append("items",
@@ -298,6 +299,7 @@ class SubcontractingJobWork(Document):
 			se = frappe.new_doc("Stock Entry")
 			se.stock_entry_type = "Manufacture"
 			se.company = self.company
+			se.set_posting_time = True
 			se.posting_date = self.posting_date
 			in_finished =  self.get('in_finished_item_outsource_job_work' , filters = {'quantity': ['not in',(None,0)]})
 			for i in in_finished :

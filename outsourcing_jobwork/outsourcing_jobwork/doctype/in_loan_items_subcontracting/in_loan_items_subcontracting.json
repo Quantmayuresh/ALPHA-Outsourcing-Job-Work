@@ -12,18 +12,19 @@
   "finished_item_name",
   "column_break_zrwqr",
   "in_able_quantity",
-  "production_quantity",
+  "in_quantity",
   "section_break_o7huc",
   "source_warehouse",
+  "available_quantity",
   "column_break_mzuhn",
   "target_warehouse",
   "section_break_ar5wf",
   "weight_per_unit",
   "total_finished_weight",
+  "column_break_f9tnn",
   "rate_from_order",
   "production_done_quantity",
-  "reference_id",
-  "scj_parent"
+  "reference_id"
  ],
  "fields": [
   {
@@ -55,14 +56,6 @@
    "fieldname": "in_able_quantity",
    "fieldtype": "Float",
    "label": "in_able_quantity"
-  },
-  {
-   "columns": 1,
-   "fieldname": "production_quantity",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Production Quantity ",
-   "reqd": 1
   },
   {
    "fieldname": "section_break_o7huc",
@@ -122,15 +115,27 @@
    "label": "reference_id"
   },
   {
-   "fieldname": "scj_parent",
-   "fieldtype": "Data",
-   "label": "SCJ_Parent"
+   "fieldname": "column_break_f9tnn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "in_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "IN Quantity ",
+   "reqd": 1
+  },
+  {
+   "fieldname": "available_quantity",
+   "fieldtype": "Float",
+   "label": "available_quantity"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-07 10:25:56.007946",
+ "modified": "2024-04-23 18:53:21.715708",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "IN Loan Items Subcontracting",

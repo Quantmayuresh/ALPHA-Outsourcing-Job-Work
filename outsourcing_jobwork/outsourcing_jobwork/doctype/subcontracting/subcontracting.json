@@ -41,13 +41,15 @@
   "loan_items_subcontracting",
   "section_break_edp40",
   "out_subcontracting_list",
+  "in_loan_items_subcontracting",
+  "remarks",
   "subcontracting_details_tab",
   "in_finished_item_subcontracting",
+  "total_in_qty",
   "in_raw_item_subcontracting",
   "rejection_target_warehouse",
   "in_rejected_items_reasons_subcontracting",
   "section_break_jf2yh",
-  "in_loan_items_subcontracting",
   "section_break_q1xtc",
   "bifurcation_out_subcontracting",
   "address_details_tab",
@@ -71,6 +73,7 @@
   {
    "fieldname": "supplier_id",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Supplier ID",
    "options": "Supplier",
    "remember_last_selected_value": 1,
@@ -218,7 +221,7 @@
    "options": "Loan Items Subcontracting"
   },
   {
-   "depends_on": "eval: doc.in_or_out == 'IN' && doc.entry_type == 'Material Loan Given';",
+   "depends_on": "eval:doc.in_or_out == 'IN' && doc.in_entry_type == 'Material Loan Given' ;",
    "fieldname": "in_loan_items_subcontracting",
    "fieldtype": "Table",
    "label": "IN Loan Items Subcontracting",
@@ -318,7 +321,8 @@
   {
    "fieldname": "sup_adderss",
    "fieldtype": "Small Text",
-   "label": "Address"
+   "label": "Address",
+   "read_only": 1
   },
   {
    "fieldname": "company_address_section",
@@ -385,6 +389,16 @@
    "fieldtype": "Link",
    "label": "Item Group",
    "options": "Item Group"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "total_in_qty",
+   "fieldtype": "Float",
+   "label": "Total In QTY"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -395,7 +409,7 @@
    "link_fieldname": "custom_subcontracting"
   }
  ],
- "modified": "2024-04-12 11:52:53.041071",
+ "modified": "2024-04-29 20:41:34.827888",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Subcontracting",

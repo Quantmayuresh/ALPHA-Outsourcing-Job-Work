@@ -5,6 +5,73 @@ frappe.ui.form.on('Subcontracting', {
 
     // }
 });
+// ================================================================================= Address ===============================================================================
+
+frappe.ui.form.on('Subcontracting', {
+    supplier_address: function(frm) {
+        if (frm.doc.supplier_address) {
+            frappe.call({
+                method: "alpha_customization.alpha_customization.blanket_order_address.get_display_address_for_blanket_order",
+                args: {
+                    address_id: frm.doc.supplier_address
+                },
+                callback: function(r) {
+                    if (r.message) {
+
+                        frm.doc.sup_adderss = r.message; // Assign m to sup_adderss field
+                        frm.refresh_field('sup_adderss'); // Refresh the field to update its value on the form
+                    }
+                }
+            });
+        }
+    },
+});
+
+
+
+function method_call_method(frm, party, party_type) {
+    frappe.call({
+        method: "alpha_customization.alpha_customization.blanket_order_address.get_address_for_blanket_order",
+        args: {
+            party: party,
+            party_type: party_type
+
+        },
+        callback: function(r) {
+            if (r.message) {
+                var k = r.message[0];
+                var m = r.message[1];
+
+                frm.doc.supplier_address = k; // Assign k to supplier_address field
+                frm.doc.sup_adderss = r.message[1]; // Assign m to sup_adderss field
+                frm.refresh_field('supplier_address'); // Refresh the field to update its value on the form
+                frm.refresh_field('sup_adderss'); // Refresh the field to update its value on the form
+
+
+            }
+        }
+    });
+}
+
+
+frappe.ui.form.on('Subcontracting', {
+    supplier_id: function(frm) {
+        if (frm.doc.supplier_id) {
+
+            // frm.set_query("supplier_address", function() { // Replace with the name of the link field
+            //     return {
+            //         filters: [
+            //             ["Dynamic Link", "link_doctype", "=", 'Supplier'],
+            //             ["Dynamic Link", "link_name", "=", frm.doc.supplier],
+            //         ]
+            //     };
+            // });
+            method_call_method(frm, frm.doc.supplier_id, 'Supplier');
+        }
+    },
+});
+
+
 // ================================================================================== ALL ================================================================================== 
 function set_available_qty(frm, table, qty_field, item_code, warehouse_field) {
     const args = {
@@ -307,8 +374,8 @@ frappe.ui.form.on("Subcontracting", {
                 set_table_data(frm, 'items_subcontracting', 'source_warehouse', frm.doc.source_warehouse, 'available_quantity', 'raw_item_code', 'source_warehouse');
             }
         } else {
-            if (frm.doc.entry_type == 'Material Loan Given') {
-
+            if (frm.doc.in_entry_type == 'Material Loan Given') {
+                set_table_data(frm, 'in_loan_items_subcontracting', 'source_warehouse', frm.doc.source_warehouse, 'available_quantity', 'finished_item_code', 'source_warehouse');
             } else {
                 // set_table_data(frm, 'in_raw_item_subcontracting','source_warehouse',frm.doc.source_warehouse,'available_quantity','raw_item_code','source_warehouse');
                 // set_table_data(frm, 'in_rejected_items_reasons_subcontracting','source_warehouse',frm.doc.source_warehouse,'available_quantity','raw_item_code','source_warehouse');
@@ -330,8 +397,8 @@ frappe.ui.form.on("Subcontracting", {
                 set_table_data(frm, 'items_subcontracting', 'target_warehouse', frm.doc.target_warehouse);
             }
         } else {
-            if (frm.doc.entry_type == 'Material Loan Given') {
-
+            if (frm.doc.in_entry_type == 'Material Loan Given') {
+                set_table_data(frm, 'in_loan_items_subcontracting', 'target_warehouse', frm.doc.target_warehouse);
             } else {
                 set_table_data(frm, 'in_finished_item_subcontracting', 'target_warehouse', frm.doc.target_warehouse);
             }
@@ -542,5 +609,18 @@ frappe.ui.form.on('IN Raw Item Subcontracting', {
     },
     source_warehouse: function(frm) {
         set_available_qty(frm, 'in_raw_item_subcontracting', 'available_quantity', 'raw_item_code', 'source_warehouse');
+    }
+});
+
+// ================================================================================== Loan Items Subcontracting ================================================================================== 
+
+frappe.ui.form.on('Loan Items Subcontracting', {
+    finished_item_code: function(frm) {
+        // set_available_qty(frm, 'items_subcontracting','available_quantity','raw_item_code','source_warehouse');
+        set_table_data(frm, 'loan_items_subcontracting', 'source_warehouse', frm.doc.source_warehouse, 'available_quantity', 'finished_item_code', 'source_warehouse');
+
+    },
+    source_warehouse: function(frm) {
+        set_available_qty(frm, 'loan_items_subcontracting', 'available_quantity', 'finished_item_code', 'source_warehouse');
     }
 });
