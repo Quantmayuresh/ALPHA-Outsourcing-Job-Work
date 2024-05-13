@@ -21,7 +21,10 @@
   "as_it_is_warehouse",
   "column_break_ptcdl",
   "default_expense_account",
-  "out_default_setting_section"
+  "out_default_setting_section",
+  "labour_invoice_item__code",
+  "labour_invoice_item__name",
+  "labour_invoice_item_uom"
  ],
  "fields": [
   {
@@ -95,11 +98,30 @@
    "fieldname": "rate_for_print",
    "fieldtype": "Float",
    "label": "Rate For Print"
+  },
+  {
+   "fieldname": "labour_invoice_item__code",
+   "fieldtype": "Link",
+   "label": "labour Invoice item  Code",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "labour_invoice_item__code.item_name",
+   "fieldname": "labour_invoice_item__name",
+   "fieldtype": "Data",
+   "label": "labour Invoice item  Name"
+  },
+  {
+   "fetch_from": "labour_invoice_item__code.stock_uom",
+   "fieldname": "labour_invoice_item_uom",
+   "fieldtype": "Link",
+   "label": "labour Invoice item UOM",
+   "options": "UOM"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-05 12:06:12.350031",
+ "modified": "2024-05-08 13:18:06.700406",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Subcontracting Setting",

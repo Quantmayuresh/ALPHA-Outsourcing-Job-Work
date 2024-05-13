@@ -1,0 +1,29 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2024-04-13 10:47:29.003066",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"filters\":[[\"Subcontracting\",\"docstatus\",\"like\",\"%1%\",false],[\"Subcontracting\",\"in_or_out\",\"=\",\"OUT\"]],\"fields\":[[\"name\",\"Subcontracting\"],[\"docstatus\",\"Subcontracting\"],[\"raw_item_name\",\"Items Subcontracting\"],[\"supplier_name\",\"Subcontracting\"],[\"in_or_out\",\"Subcontracting\"],[\"posting_date\",\"Subcontracting\"],[\"production_done_quantity\",\"Items Subcontracting\"],[\"production_quantity\",\"Items Subcontracting\"]],\"order_by\":\"`tabSubcontracting`.`modified` desc\",\"add_totals_row\":0,\"page_length\":20,\"column_widths\":{\"name\":173,\"docstatus\":120,\"Items Subcontracting:raw_item_name\":120,\"supplier_name\":183,\"in_or_out\":120,\"posting_date\":120,\"Items Subcontracting:production_done_quantity\":120,\"Items Subcontracting:production_quantity\":120},\"group_by\":null}",
+ "letter_head": "Phadke  Ferrocast Pvt. Ltd.",
+ "modified": "2024-04-30 18:38:58.771238",
+ "modified_by": "Administrator",
+ "module": "Outsourcing JobWork",
+ "name": "Subcontracting Out Challan Report",
+ "owner": "vivek.kumbhar@erpdata.in",
+ "prepared_report": 0,
+ "query": "",
+ "ref_doctype": "Subcontracting",
+ "report_name": "Subcontracting Out Challan Report",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

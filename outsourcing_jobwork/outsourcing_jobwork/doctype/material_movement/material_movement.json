@@ -1,0 +1,190 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-05-03 17:35:24.496952",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "column_break_ujiz4",
+  "naming_series",
+  "column_break_3vvb3",
+  "date",
+  "select_purpose_section",
+  "purpose",
+  "operator_id",
+  "column_break_evg7p",
+  "type",
+  "operator_name",
+  "set_warehouses_section",
+  "set_source_warehouse",
+  "column_break_owb0t",
+  "set_target_warehouse",
+  "bulk_material_transfer_details_section",
+  "items",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ujiz4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Series",
+   "options": "MM-STE-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3vvb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "set_warehouses_section",
+   "fieldtype": "Section Break",
+   "label": " Set Warehouses"
+  },
+  {
+   "fieldname": "set_source_warehouse",
+   "fieldtype": "Link",
+   "label": "Set Source Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_owb0t",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "set_target_warehouse",
+   "fieldtype": "Link",
+   "label": "Set Target Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "bulk_material_transfer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Material Movements Item"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Material Movement",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Material Movements Item"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "\nFor Loan\nFor Other",
+   "reqd": 1
+  },
+  {
+   "fieldname": "select_purpose_section",
+   "fieldtype": "Section Break",
+   "label": "Select Purpose"
+  },
+  {
+   "fieldname": "column_break_evg7p",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nIN\nOUT",
+   "reqd": 1
+  },
+  {
+   "fieldname": "operator_id",
+   "fieldtype": "Link",
+   "label": "Operator Id",
+   "options": "Operator Master",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "operator_id.operator_name",
+   "fieldname": "operator_name",
+   "fieldtype": "Data",
+   "label": "Operator Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Stock Entry",
+   "link_fieldname": "custom_material_movement"
+  }
+ ],
+ "modified": "2024-05-04 17:17:24.147757",
+ "modified_by": "Administrator",
+ "module": "Outsourcing JobWork",
+ "name": "Material Movement",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
