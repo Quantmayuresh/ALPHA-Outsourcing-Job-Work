@@ -22,9 +22,10 @@ class Subcontracting(Document):
 	@frappe.whitelist()
 	def before_save(self):
 		if self.in_or_out == 'OUT':
-			pass
+			self.update_value()
 		else:
 			self.validate_entry()
+			self.update_raw_list("out_subcontracting_list","check")
 
 	@frappe.whitelist()
 	def before_submit(self):
@@ -833,6 +834,11 @@ class Subcontracting(Document):
 	@frappe.whitelist()
 	def calculating_total_in_qty(self):
 		self.total_in_qty = self.calculating_total('in_finished_item_subcontracting','total_quantity')
+		self.total_in_ok_qty = self.calculating_total('in_finished_item_subcontracting','total_in_ok_qty')
+		self.total_in_as_it_is_qty = self.calculating_total('in_finished_item_subcontracting','total_in_as_it_is_qty')
+		self.total_in_cr_qty = self.calculating_total('in_finished_item_subcontracting','total_in_cr_qty')
+		self.total_in_mr_qty = self.calculating_total('in_finished_item_subcontracting','total_in_mr_qty')
+		self.total_in_rw_qty = self.calculating_total('in_finished_item_subcontracting','total_in_rw_qty')
 
 
 	@frappe.whitelist()
@@ -883,3 +889,170 @@ class Subcontracting(Document):
 			else:
 				doc.out_done = False
 			doc.save()
+
+# =================================================================================================== IN ===================================================================================================
+
+	@frappe.whitelist()
+	def update_value(self):
+		self.customer_name = self.supplier_name
+		self.customer_address = self.supplier_address
+
+		comp_state = frappe.get_value("Address", {"address_title": self.company}, 'state')
+		supp_state = frappe.get_value("Address", {"address_title": self.supplier_id}, 'state')
+
+		tot_taxable_amount = 0
+		tot_amount = 0
+		tot_weight = 0
+		tot_prod_qty = 0
+		subcontracting_set_rate = frappe.get_value("Subcontracting Setting", {'name': self.company}, 'rate_for_print')
+
+
+		for i in self.items_subcontracting:
+			item_doc = frappe.get_doc("Item", {'name':i.raw_item_code})
+			i.description = item_doc.item_name if i.description is None else i.description
+			i.gst_hsn_code = item_doc.gst_hsn_code
+
+			if item_doc.custom_production_uom_definition:
+				for prod_uom in item_doc.custom_production_uom_definition:
+					i.uom = prod_uom.uom
+					i.weight_per_unit = prod_uom.value_per_unit
+			else:
+				i.weight_per_unit = 0
+				frappe.msgprint("UOM And Value Per Unit Should be defined in Item Master")
+
+			i.total_finished_weight = i.production_quantity * i.weight_per_unit
+
+			i.rate = subcontracting_set_rate
+			i.amount = i.production_quantity * subcontracting_set_rate
+			tot_prod_qty += i.production_quantity
+
+			tot_amount += i.amount
+			tot_weight += i.total_finished_weight
+
+			tax_rate = frappe.get_value("Item Tax Template", {'name':item_doc.taxes[0].item_tax_template}, 'gst_rate')
+			if comp_state == supp_state:
+				i.cgst_rate = i.sgst_rate = (tax_rate/2)
+				i.cgst_amount = i.sgst_amount = round((i.amount/100)*(i.cgst_rate),2)
+				i.taxable_value = i.cgst_amount + i.sgst_amount
+				tot_taxable_amount += i.taxable_value
+			else:
+				i.igst_rate = tax_rate
+				i.igst_amount = round((i.amount/100)*(i.igst_rate),2)
+				i.taxable_value = i.igst_amount
+				tot_taxable_amount += i.taxable_value
+
+		self.total_production_qty = tot_prod_qty
+
+		if comp_state == supp_state:
+			filter ={'is_inter_state': 0, 'is_reverse_charge': 0,'gst_state': comp_state}
+			tot_taxable_amount = tot_taxable_amount/2
+		else:
+			filter ={'is_inter_state': 1, 'is_reverse_charge': 0,'gst_state': comp_state}
+
+		tax_cat_list = frappe.get_value("Tax Category",filter,'name')
+		
+		self.taxes_and_charges = frappe.get_value("Sales Taxes and Charges Template", {'tax_category': tax_cat_list, 'company': self.company}, 'name')
+		if self.taxes_and_charges == None:
+			frappe.msgprint("Template Not Found")
+		else:
+			taxes_charges_doc = frappe.get_doc("Sales Taxes and Charges Template",{'name':self.taxes_and_charges})
+			for tx in taxes_charges_doc.taxes:
+				tot_amount += tot_taxable_amount
+				self.append("taxes",{
+					"charge_type": tx.charge_type,
+					"account_head": tx.account_head,
+					"description": tx.description,
+					"cost_center": tx.cost_center,
+					"tax_amount": tot_taxable_amount,
+					"total": round(tot_amount,2)
+				})
+				
+		self.total_amount = tot_amount
+		self.total_weight = tot_weight
+		self.rounded_total = round(tot_amount)
+
+		for i in range(len(self.items_subcontracting)):
+			item_doc = frappe.get_doc("Items Subcontracting", self.items_subcontracting[i])
+			self.append("items",{
+				"raw_item_code": item_doc.raw_item_code,
+				"raw_item_name": item_doc.raw_item_name,
+				"target_warehouse": item_doc.target_warehouse,
+				"source_warehouse": item_doc.source_warehouse,
+				"available_quantity": item_doc.available_quantity,
+				"description": item_doc.description,
+				"gst_hsn_code": item_doc.gst_hsn_code,
+				"stock_uom": item_doc.stock_uom,
+				"production_quantity": item_doc.production_quantity,
+				"amount": item_doc.amount,
+				"uom": item_doc.uom,
+				"rate": item_doc.rate,
+				"weight_per_unit": item_doc.weight_per_unit,
+				"total_finished_weight": item_doc.total_finished_weight,
+				"rate_for_print": item_doc.rate_for_print,
+				"production_done_quantity": item_doc.production_done_quantity,
+				"igst_rate": item_doc.igst_rate,
+				"cgst_rate": item_doc.cgst_rate,
+				"sgst_rate": item_doc.sgst_rate,
+				"cess_rate": item_doc.cess_rate,
+				"cess_non_advol_rate": item_doc.cess_non_advol_rate,
+				"igst_amont": item_doc.igst_amount,
+				"cgst_amont": item_doc.cgst_amount,
+				"sgst_amont": item_doc.sgst_amount,
+				"cess_amont": item_doc.cess_amount,
+				"cess_non_advol_amont": item_doc.cess_non_advol_amount,
+				"taxable_value": item_doc.taxable_value,
+				"item_name": item_doc.item_name,
+				"item_code": item_doc.item_code,
+				"qty": item_doc.total_finished_weight
+				})
+
+	@frappe.whitelist()
+	def update_warehouse(self):
+		if self.supplier_id:
+			data = frappe.get_doc("Supplier",self.supplier_id)
+			if self.in_or_out == 'OUT':
+				if self.source_warehouse:
+					self.source_warehouse = None
+				self.target_warehouse = data.custom_subcontracting_warehouse
+			if self.in_or_out == 'IN':
+				if self.target_warehouse:
+					self.target_warehouse = None
+				self.source_warehouse = data.custom_subcontracting_warehouse
+		else:
+			frappe.throw("No Supplier ID")
+
+	@frappe.whitelist()
+	def update_company_address(self):
+		if self.company:
+			comp_add_data = frappe.get_doc("Address", {"address_title": self.company})
+			self.company_address = comp_add_data.name
+			self.company_gstin = comp_add_data.gstin
+			self.comp_address = f"{comp_add_data.address_line1}\n{comp_add_data.address_line2}\n{comp_add_data.city}\n{comp_add_data.state}\n{comp_add_data.country}"
+			self.shipping_address_name = comp_add_data.name
+		else:
+			frappe.throw("No Company Selected")
+
+	@frappe.whitelist()
+	def update_supplier_address(self):
+		if self.supplier_id:
+			comp_add_data = frappe.get_doc("Address", {"address_title": self.supplier_name})
+			self.supplier_address = comp_add_data.name
+			self.supplier_gstin = comp_add_data.gstin
+			self.sup_address = f"{comp_add_data.address_line1}\n{comp_add_data.address_line2}\n{comp_add_data.city}\n{comp_add_data.state}\n{comp_add_data.country}"
+			self.dispatch_address_name = comp_add_data.name
+			self.gst_category = comp_add_data.gst_category
+
+			sup_data = frappe.get_doc("Supplier",self.supplier_id)
+			if sup_data.is_transporter == 1:
+				self.transporter = self.supplier_id
+				self.transporter_name = self.supplier_name
+				self.gst_transporter_id = sup_data.gst_transporter_id
+
+			self.place_of_supply = f"{comp_add_data.gst_state_number} - {comp_add_data.gst_state}"
+			self.update_warehouse()
+		else:
+			frappe.throw("No Supplier Selected")
+
+	def update_raw_list(self, child_table, field):
+		for i in self.get(child_table, filters={field:0}):
+			self.get(child_table).remove(i)

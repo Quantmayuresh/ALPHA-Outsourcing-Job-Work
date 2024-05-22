@@ -1,10 +1,49 @@
 // Copyright (c) 2024, Quantbit Technologies Pvt ltd and contributors
 // For license information, please see license.txt
-frappe.ui.form.on('Subcontracting', {
+// frappe.ui.form.on('Subcontracting', {
     // refresh: function(frm) {
 
     // }
+// });
+
+frappe.ui.form.on("Subcontracting", {
+    in_or_out: function (frm) {
+        if (frm.doc.out_entry_type === 'Subcontracting') {
+            frappe.call({
+                method: 'update_warehouse',
+                doc: frm.doc,
+                callback: function (r) {
+                    refresh_field(["source_warehouse","target_warehouse"])
+                }
+            });
+        }
+    }
 });
+
+frappe.ui.form.on("Subcontracting", {
+    company: function (frm) {
+            frappe.call({
+                method: 'update_company_address',
+                doc: frm.doc,
+                callback: function (r) {
+                    refresh_field(["company_address","company_gstin"])
+                }
+            });
+        }
+});
+
+frappe.ui.form.on("Subcontracting", {
+    supplier_id: function (frm) {
+            frappe.call({
+                method: 'update_supplier_address',
+                doc: frm.doc,
+                callback: function (r) {
+                    refresh_field(["company_address","company_gstin"])
+                }
+            });
+        }
+});
+
 // ================================================================================= Address ===============================================================================
 
 frappe.ui.form.on('Subcontracting', {

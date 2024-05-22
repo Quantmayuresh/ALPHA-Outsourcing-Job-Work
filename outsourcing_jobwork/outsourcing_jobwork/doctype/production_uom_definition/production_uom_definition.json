@@ -28,14 +28,14 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Value Per Unit",
-   "precision": "2",
+   "precision": "3",
    "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-02 17:24:44.933888",
+ "modified": "2024-05-14 13:21:35.759110",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Production UOM Definition",

@@ -38,14 +38,48 @@
   "outsourcing_operations",
   "section_break_62zph",
   "items_subcontracting",
+  "total_production_qty",
+  "items",
   "loan_items_subcontracting",
   "section_break_edp40",
   "out_subcontracting_list",
   "in_loan_items_subcontracting",
+  "taxes_section",
+  "taxes_and_charges",
+  "section_break_x9lkm",
+  "is_return",
+  "taxes",
+  "totals_section",
+  "total_weight",
+  "currency",
+  "column_break_8hr9u",
+  "outstanding_amount",
+  "rounding_adjustment",
+  "disable_rounded_total",
+  "column_break_u3cnb",
+  "total_amount",
+  "rounded_total",
+  "additional_discount_section",
+  "apply_discount_on",
+  "column_break_s6dmx",
+  "additional_discount_percentage",
+  "discount_amount",
   "remarks",
   "subcontracting_details_tab",
   "in_finished_item_subcontracting",
+  "column_break_qz0kn",
   "total_in_qty",
+  "column_break_st",
+  "total_in_ok_qty",
+  "column_break_aqosd",
+  "total_in_as_it_is_qty",
+  "column_break_1j0il",
+  "total_in_cr_qty",
+  "column_break_3bm7e",
+  "total_in_mr_qty",
+  "column_break_bv1t1",
+  "total_in_rw_qty",
+  "section_break_rosyi",
   "in_raw_item_subcontracting",
   "rejection_target_warehouse",
   "in_rejected_items_reasons_subcontracting",
@@ -55,13 +89,38 @@
   "address_details_tab",
   "billing_address_section",
   "supplier_address",
+  "supplier_gstin",
+  "gst_category",
   "column_break_aly36",
   "sup_adderss",
+  "place_of_supply",
+  "shipping_address_section",
+  "shipping_address_name",
+  "column_break_r7wmx",
+  "dispatch_address_name",
   "company_address_section",
   "company_address",
-  "column_break_r7wmx",
+  "company_gstin",
+  "column_break_f94pp",
   "comp_address",
-  "amended_from"
+  "amended_from",
+  "more_info_tab",
+  "edit_printing_settings",
+  "group_same_items",
+  "transporter_info",
+  "transporter",
+  "gst_transporter_id",
+  "driver",
+  "lr_no",
+  "customer_address",
+  "distance",
+  "column_break_2nlgq",
+  "transporter_name",
+  "mode_of_transport",
+  "driver_name",
+  "lr_date",
+  "gst_vehicle_type",
+  "customer_name"
  ],
  "fields": [
   {
@@ -342,7 +401,8 @@
   {
    "fieldname": "comp_address",
    "fieldtype": "Small Text",
-   "label": "Address"
+   "label": "Address",
+   "read_only": 1
   },
   {
    "depends_on": "eval: doc.in_or_out == 'OUT' && doc.out_entry_type == 'Subcontracting';",
@@ -354,7 +414,8 @@
   {
    "fieldname": "vihicle_no",
    "fieldtype": "Data",
-   "label": "Vehicle No"
+   "label": "Vehicle No",
+   "reqd": 1
   },
   {
    "depends_on": "eval: doc.in_or_out == 'IN' && doc.in_entry_type == 'Subcontracting';",
@@ -399,6 +460,312 @@
    "fieldname": "total_in_qty",
    "fieldtype": "Float",
    "label": "Total In QTY"
+  },
+  {
+   "fieldname": "supplier_gstin",
+   "fieldtype": "Data",
+   "label": "Supplier Address GSTIN"
+  },
+  {
+   "fieldname": "gst_category",
+   "fieldtype": "Data",
+   "label": "GST Category"
+  },
+  {
+   "fieldname": "place_of_supply",
+   "fieldtype": "Data",
+   "label": "Place Of Supply"
+  },
+  {
+   "fieldname": "shipping_address_section",
+   "fieldtype": "Section Break",
+   "label": "Shipping Address"
+  },
+  {
+   "fieldname": "shipping_address_name",
+   "fieldtype": "Link",
+   "label": "Shipping Address Name",
+   "options": "Address"
+  },
+  {
+   "fieldname": "dispatch_address_name",
+   "fieldtype": "Link",
+   "label": "Dispatch Address Name",
+   "options": "Address"
+  },
+  {
+   "fieldname": "company_gstin",
+   "fieldtype": "Data",
+   "label": "Company Address GSTIN"
+  },
+  {
+   "fieldname": "column_break_f94pp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "more_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "More Info"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "edit_printing_settings",
+   "fieldtype": "Section Break",
+   "label": "Print Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "group_same_items",
+   "fieldtype": "Check",
+   "label": "Group same items"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "transporter_info",
+   "fieldtype": "Section Break",
+   "label": "Transporter Info"
+  },
+  {
+   "fieldname": "transporter",
+   "fieldtype": "Link",
+   "label": "Transporter",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "gst_transporter_id",
+   "fieldtype": "Data",
+   "label": "GST Transporter ID"
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "Driver",
+   "options": "Driver"
+  },
+  {
+   "fieldname": "lr_no",
+   "fieldtype": "Data",
+   "label": "Transport receipt no"
+  },
+  {
+   "fieldname": "distance",
+   "fieldtype": "Int",
+   "label": "Distance (in km)"
+  },
+  {
+   "fieldname": "column_break_2nlgq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transporter_name",
+   "fieldtype": "Data",
+   "label": "Transporter Name"
+  },
+  {
+   "fieldname": "mode_of_transport",
+   "fieldtype": "Select",
+   "label": "Mode of Transport",
+   "options": "\nRoad\nAir\nRail\nShip"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "fieldname": "lr_date",
+   "fieldtype": "Data",
+   "label": "Transport Receipt Date"
+  },
+  {
+   "fieldname": "gst_vehicle_type",
+   "fieldtype": "Select",
+   "label": "GST Vehicle Type",
+   "options": "Regular\nOver Dimensional Cargo (ODC)"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "customer_address",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Customer Address"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Items",
+   "options": "Items Subcontracting"
+  },
+  {
+   "fieldname": "taxes_section",
+   "fieldtype": "Section Break",
+   "label": "Taxes and Charges",
+   "options": "fa fa-money"
+  },
+  {
+   "fieldname": "taxes_and_charges",
+   "fieldtype": "Link",
+   "label": "Sales Taxes and Charges Template",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "fieldname": "section_break_x9lkm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_return",
+   "fieldtype": "Check",
+   "label": "Is Return"
+  },
+  {
+   "fieldname": "taxes",
+   "fieldtype": "Table",
+   "label": "Sales Taxes and Charges",
+   "options": "Sales Taxes and Charges"
+  },
+  {
+   "fieldname": "totals_section",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_weight",
+   "fieldtype": "Float",
+   "label": "Total Weight"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "column_break_8hr9u",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "outstanding_amount",
+   "fieldtype": "Currency",
+   "label": "Outstanding Amount",
+   "options": "party_account_currency"
+  },
+  {
+   "fieldname": "rounding_adjustment",
+   "fieldtype": "Currency",
+   "label": "Rounding Adjustment",
+   "options": "currency"
+  },
+  {
+   "fieldname": "disable_rounded_total",
+   "fieldtype": "Currency",
+   "label": "Disable Rounded Total"
+  },
+  {
+   "fieldname": "column_break_u3cnb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount",
+   "options": "currency"
+  },
+  {
+   "fieldname": "rounded_total",
+   "fieldtype": "Currency",
+   "label": "Rounded Total"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "additional_discount_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Discount"
+  },
+  {
+   "fieldname": "apply_discount_on",
+   "fieldtype": "Select",
+   "label": "Apply Additional Discount On",
+   "options": "\nGrand Total\nNet Total"
+  },
+  {
+   "fieldname": "column_break_s6dmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_discount_percentage",
+   "fieldtype": "Float",
+   "label": "Additional Discount Percentage"
+  },
+  {
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Additional Discount Amount",
+   "options": "currency"
+  },
+  {
+   "fieldname": "total_production_qty",
+   "fieldtype": "Float",
+   "label": "Total Production QTY"
+  },
+  {
+   "fieldname": "column_break_qz0kn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_in_ok_qty",
+   "fieldtype": "Float",
+   "label": "Total OK QTY"
+  },
+  {
+   "fieldname": "total_in_as_it_is_qty",
+   "fieldtype": "Float",
+   "label": "Total As IT IS QTY"
+  },
+  {
+   "fieldname": "total_in_cr_qty",
+   "fieldtype": "Float",
+   "label": "Total CR QTY"
+  },
+  {
+   "fieldname": "total_in_mr_qty",
+   "fieldtype": "Float",
+   "label": "Total MR QTY"
+  },
+  {
+   "fieldname": "total_in_rw_qty",
+   "fieldtype": "Float",
+   "label": "Total RW QTY"
+  },
+  {
+   "fieldname": "column_break_aqosd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_1j0il",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_3bm7e",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bv1t1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_st",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_rosyi",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -409,7 +776,7 @@
    "link_fieldname": "custom_subcontracting"
   }
  ],
- "modified": "2024-04-29 20:41:34.827888",
+ "modified": "2024-05-20 15:06:50.630396",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Subcontracting",
