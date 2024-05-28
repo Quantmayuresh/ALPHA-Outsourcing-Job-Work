@@ -44,6 +44,5 @@ frappe.query_reports["Test Report"] = {
             "label": "Entry Type",
             "options": ["Subcontracting", "Material Loan Given"]
         }
-
     ]
 };

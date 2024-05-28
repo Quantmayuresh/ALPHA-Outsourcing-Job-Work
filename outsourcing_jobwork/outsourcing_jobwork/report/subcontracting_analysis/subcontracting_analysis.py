@@ -6,13 +6,11 @@ from datetime import datetime
 
 def execute(filters=None):
     columns, data = [], {}
-    columns = get_col(filters.get("group_by"))
+    columns = get_col(filters)
     data = get_data(filters)
-    if not data:
-        frappe.msgprint("No data")
     return columns, data
 
-def get_col(group_by):
+def get_col(filters):
     columns = [
         # {
         #     "fieldname": "Date","fieldtype": "Date","label": "Posting Date"
@@ -39,6 +37,9 @@ def get_col(group_by):
             "fieldname": "mr_quantity","fieldtype": "Float","label": "MR QTY"
         },
         {
+            "fieldname": "as_it_is_quantity","fieldtype": "Float","label": "AS IT IS QTY"
+        },
+        {
             "fieldname": "rw_quantity","fieldtype": "Float","label": "RW QTY"
         },
         {
@@ -46,24 +47,21 @@ def get_col(group_by):
         },
         {
             "fieldname": "production_remaining_quantity","fieldtype": "Float","label": "Balance"
-        },
-        {
-            "fieldname": "weight_per_unit","fieldtype": "Float","label": "Wt/Pc"
-        },
-        {
-            "fieldname": "total_weight","fieldtype": "Float","label": "Total Receipts Weight"
-        },
-        {
-            "fieldname": "total_balance_weight","fieldtype": "Float","label": "Total Balance Weight"
         }
     ]
 
-    if group_by == "Group By Item":
+    if filters.get("group_by") == "Group By Item":
         columns.insert(0, {"fieldname": "raw_item_code","fieldtype": "Data","label": "Raw Item Code"})
         columns.insert(1,{"fieldname": "raw_item_name","fieldtype": "Data","label": "Raw Item Name"})
     else:
         columns.insert(1, {"fieldname": "raw_item_code","fieldtype": "Data","label": "Raw Item Code"})
         columns.insert(2,{"fieldname": "raw_item_name","fieldtype": "Data","label": "Raw Item Name"})
+
+    if filters.get("include_weight") == 1:
+        columns.append({"fieldname": "weight_per_unit","fieldtype": "Float","label": "Wt/Pc"})
+        columns.append({"fieldname": "total_weight","fieldtype": "Float","label": "Total Receipts Weight"})
+        columns.append({"fieldname": "total_balance_weight","fieldtype": "Float","label": "Total Balance Weight"})
+
     return columns
 
 def get_data(filters):
@@ -74,37 +72,10 @@ def get_data(filters):
     item = filters.get("item")
     group_by = filters.get("group_by")
 
-    # sql_query = """
-    #             SELECT Date, subcontracting, supplier_name, raw_item_code, raw_item_name, SUM(ok_quantity) AS ok_quantity, SUM(cr_quantity) AS cr_quantity, SUM(mr_quantity) AS mr_quantity, SUM(rw_quantity) AS rw_quantity, SUM(production_quantity) AS production_quantity, SUM(production_out_quantity) AS production_out_quantity, weight_per_unit, 0 AS production_remaining_quantity
-    #         FROM (
-    #             SELECT sc.posting_date AS Date, bos.subcontracting, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, bos.ok_quantity, bos.cr_quantity, bos.mr_quantity, bos.rw_quantity, bos.production_quantity, bos.production_out_quantity, bos.weight_per_unit,production_remaining_quantity
-    #             FROM 
-    #                 `tabBifurcation Out Subcontracting` AS bos
-    #             LEFT JOIN 
-    #                 `tabSubcontracting` sc ON sc.name = bos.parent
-    #             WHERE 
-    #                 sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
-    #             UNION ALL
-
-    #             SELECT sc.posting_date AS Date, sc.name AS subcontracting, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, 0 AS ok_quantity, 0 AS cr_quantity, 0 AS mr_quantity, 0 AS rw_quantity, 0 AS production_quantity, bos.production_quantity AS production_out_quantity, bos.weight_per_unit,0 AS production_remaining_quantity
-    #             FROM 
-    #                 `tabSubcontracting` AS sc
-    #             LEFT JOIN 
-    #                 `tabItems Subcontracting` bos ON sc.name = bos.parent
-    #             WHERE sc.in_or_out = 'OUT' AND sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
-    #         ) AS combined_results
-    #         GROUP BY 
-    #             subcontracting, 
-    #             supplier_name, 
-    #             raw_item_code, 
-    #             raw_item_name, 
-    #             weight_per_unit;
-    #             """
-
     sql_query = """
-                SELECT Date, warehouse, supplier_name, raw_item_code, raw_item_name, SUM(ok_quantity) AS ok_quantity, SUM(cr_quantity) AS cr_quantity, SUM(mr_quantity) AS mr_quantity, SUM(rw_quantity) AS rw_quantity, SUM(production_quantity) AS production_quantity, SUM(production_out_quantity) AS production_out_quantity, weight_per_unit, 0 AS production_remaining_quantity
+                SELECT Date, warehouse, supplier_name, raw_item_code, raw_item_name, SUM(ok_quantity) AS ok_quantity, SUM(cr_quantity) AS cr_quantity, SUM(mr_quantity) AS mr_quantity, SUM(as_it_is_quantity) AS as_it_is_quantity, SUM(rw_quantity) AS rw_quantity, SUM(production_quantity) AS production_quantity, SUM(production_out_quantity) AS production_out_quantity, weight_per_unit, 0 AS production_remaining_quantity
             FROM (
-                SELECT sc.posting_date AS Date, sc.source_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, bos.ok_quantity, bos.cr_quantity, bos.mr_quantity, bos.rw_quantity, (bos.ok_quantity+bos.cr_quantity+bos.mr_quantity+bos.rw_quantity) as production_quantity, bos.production_out_quantity, bos.weight_per_unit,production_remaining_quantity
+                SELECT sc.posting_date AS Date, sc.source_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, bos.ok_quantity, bos.cr_quantity, bos.mr_quantity, bos.as_it_is_quantity, bos.rw_quantity, (bos.ok_quantity+bos.cr_quantity+bos.mr_quantity+bos.as_it_is_quantity+bos.rw_quantity) as production_quantity, bos.production_out_quantity, bos.weight_per_unit,production_remaining_quantity
                 FROM 
                     `tabBifurcation Out Subcontracting` AS bos
                 LEFT JOIN 
@@ -113,7 +84,7 @@ def get_data(filters):
                     sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
                 UNION ALL
 
-                SELECT sc.posting_date AS Date, sc.target_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, 0 AS ok_quantity, 0 AS cr_quantity, 0 AS mr_quantity, 0 AS rw_quantity, 0 AS production_quantity, bos.production_quantity AS production_out_quantity, bos.weight_per_unit,0 AS production_remaining_quantity
+                SELECT sc.posting_date AS Date, sc.target_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, 0 AS ok_quantity, 0 AS cr_quantity, 0 AS mr_quantity,0 AS as_it_is_quantity, 0 AS rw_quantity, 0 AS production_quantity, bos.production_quantity AS production_out_quantity, bos.weight_per_unit,0 AS production_remaining_quantity
                 FROM 
                     `tabSubcontracting` AS sc
                 LEFT JOIN 
@@ -176,6 +147,7 @@ def get_data(filters):
             'ok_quantity': 0.0,
             'cr_quantity': 0.0,
             'mr_quantity': 0.0,
+            'as_it_is_quantity': 0.0,
             'rw_quantity': 0.0,
             'production_quantity': 0.0,
             'production_out_quantity': 0.0,
@@ -212,6 +184,7 @@ def get_data(filters):
             'ok_quantity': 0.0,
             'cr_quantity': 0.0,
             'mr_quantity': 0.0,
+            'as_it_is_quantity': 0.0,
             'rw_quantity': 0.0,
             'production_quantity': 0.0,
             'production_out_quantity': 0.0,

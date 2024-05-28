@@ -22,7 +22,8 @@ class Subcontracting(Document):
 	@frappe.whitelist()
 	def before_save(self):
 		if self.in_or_out == 'OUT':
-			self.update_value()
+			pass
+			
 		else:
 			self.validate_entry()
 			self.update_raw_list("out_subcontracting_list","check")
@@ -34,6 +35,8 @@ class Subcontracting(Document):
 				self.stock_transfer_stock_entry('loan_items_subcontracting' , 'finished_item_code' , 'production_quantity' , 'source_warehouse' , 'target_warehouse' )
 			else:
 				self.stock_transfer_stock_entry('items_subcontracting' , 'raw_item_code' , 'production_quantity' , 'source_warehouse' , 'target_warehouse')
+
+			self.update_value()
 		else:
 			if self.in_entry_type == 'Material Loan Given':
 				self.stock_transfer_stock_entry('in_loan_items_subcontracting' , 'finished_item_code' , 'in_quantity' , 'source_warehouse' , 'target_warehouse' )
@@ -187,7 +190,7 @@ class Subcontracting(Document):
 									SELECT a.name name, b.raw_item_code ,b.production_quantity ,b.production_done_quantity , b.name reference_id , b.subcontracting_operations
 									FROM `tabSubcontracting` a
 									LEFT JOIN `tabItems Subcontracting` b ON a.name = b.parent
-									WHERE a.supplier_id = %s AND a.company = %s AND b.docstatus = 1 AND b.out_done = 0
+									WHERE a.supplier_id = %s AND a.company = %s AND b.docstatus = 1 AND b.parentfield = 'items_subcontracting' AND b.out_done = 0
 						"""
 
 				paremeters = [supplier_id , company]

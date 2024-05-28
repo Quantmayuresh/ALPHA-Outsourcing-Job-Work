@@ -42,5 +42,10 @@ frappe.query_reports["Subcontracting Analysis"] = {
             "label": "Item Id",
             "options": "Item"
         },
+        {
+            "fieldname": "include_weight",
+            "fieldtype": "Check",
+            "label": "Include Weight",
+        },
 	]
 };
