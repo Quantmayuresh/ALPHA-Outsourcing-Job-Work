@@ -600,7 +600,7 @@
    "fieldtype": "Table",
    "hidden": 1,
    "label": "Items",
-   "options": "Items"
+   "options": "Items Subcontracting"
   },
   {
    "fieldname": "taxes_section",
@@ -776,7 +776,7 @@
    "link_fieldname": "custom_subcontracting"
   }
  ],
- "modified": "2024-05-28 21:54:54.716777",
+ "modified": "2024-05-31 22:09:20.390917",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Subcontracting",
