@@ -22,26 +22,26 @@ frappe.ui.form.on("Subcontracting", {
 
 frappe.ui.form.on("Subcontracting", {
     company: function (frm) {
-            frappe.call({
-                method: 'update_company_address',
-                doc: frm.doc,
-                callback: function (r) {
-                    refresh_field(["company_address","company_gstin"])
-                }
-            });
-        }
+        frappe.call({
+            method: 'update_company_address',
+            doc: frm.doc,
+            callback: function (r) {
+                refresh_field(["company_address","company_gstin"])
+            }
+        });
+    }
 });
 
 frappe.ui.form.on("Subcontracting", {
     supplier_id: function (frm) {
-            frappe.call({
-                method: 'update_supplier_address',
-                doc: frm.doc,
-                callback: function (r) {
-                    refresh_field(["company_address","company_gstin"])
-                }
-            });
-        }
+        frappe.call({
+            method: 'update_supplier_address',
+            doc: frm.doc,
+            callback: function (r) {
+                refresh_field(["company_address","company_gstin"])
+            }
+        });
+    }
 });
 
 // ================================================================================= Address ===============================================================================
@@ -96,7 +96,6 @@ function method_call_method(frm, party, party_type) {
 frappe.ui.form.on('Subcontracting', {
     supplier_id: function(frm) {
         if (frm.doc.supplier_id) {
-
             // frm.set_query("supplier_address", function() { // Replace with the name of the link field
             //     return {
             //         filters: [

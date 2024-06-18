@@ -73,7 +73,7 @@ def get_data(filters):
     cond = " AND " + " AND ".join(conditions) if conditions else ""
     sql_query = sql_query.format(condition = cond)
     data = frappe.db.sql(sql_query, tuple(params), as_dict=True)
-
+    # frappe.throw(str(data))
     for entry in data:
         warehouse = entry['warehouse']
         if entry['name']:
@@ -82,9 +82,10 @@ def get_data(filters):
         else:
             entry['opening_qty'] = 0
         entry['total_despatch_qty'] = entry['opening_qty'] + entry['production_out_quantity']
-        entry['total_weight'] = entry['weight_per_unit'] * entry['production_quantity']
-        entry['total_balance_weight'] = entry['weight_per_unit'] * entry['total_despatch_qty']
-        entry['production_remaining_quantity'] = entry['total_despatch_qty'] - entry['production_quantity']
+        if entry['weight_per_unit']:
+            entry['total_weight'] = entry['weight_per_unit'] * entry['production_quantity']
+            entry['total_balance_weight'] = entry['weight_per_unit'] * entry['total_despatch_qty']
+            entry['production_remaining_quantity'] = entry['total_despatch_qty'] - entry['production_quantity']
     
     sorted_data = sorted(data, key=lambda x: x['sort'])
     return sorted_data

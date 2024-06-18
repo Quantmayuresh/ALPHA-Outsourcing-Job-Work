@@ -36,7 +36,7 @@ class Subcontracting(Document):
 			else:
 				self.stock_transfer_stock_entry('items_subcontracting' , 'raw_item_code' , 'production_quantity' , 'source_warehouse' , 'target_warehouse')
 
-			self.update_value()
+			# self.update_value()
 		else:
 			if self.in_entry_type == 'Material Loan Given':
 				self.stock_transfer_stock_entry('in_loan_items_subcontracting' , 'finished_item_code' , 'in_quantity' , 'source_warehouse' , 'target_warehouse' )
@@ -535,7 +535,7 @@ class Subcontracting(Document):
 							SELECT a.name name, b.raw_item_code ,b.production_quantity ,b.production_done_quantity , b.name reference_id
 							FROM `tabSubcontracting` a
 							LEFT JOIN `tabItems Subcontracting` b ON a.name = b.parent
-							WHERE b.raw_item_code IN %s AND a.supplier_id = %s AND a.company = %s AND b.docstatus = 1 AND b.out_done = 0
+							WHERE b.raw_item_code IN %s AND a.supplier_id = %s AND a.company = %s AND b.docstatus = 1 AND b.out_done = 0 AND b.parentfield = 'items_subcontracting'
 					   		ORDER BY b.raw_item_code
 						""",(tuple(raw_item_code_list+['xxxxxx']) ,supplier_id ,company),as_dict="True")
 		for i in data:
@@ -851,6 +851,9 @@ class Subcontracting(Document):
 			production_done_quantity = doc.production_done_quantity
 			updated_value = getVal(production_done_quantity) + getVal(i.production_quantity)
 			doc.production_done_quantity = updated_value
+			if doc.production_quantity < doc.production_done_quantity :
+				frappe.throw(str('production_done_quantity is should not be greater than production_quantity'))
+				
 			if doc.production_done_quantity == doc.production_quantity:
 				doc.out_done = True
 			doc.save()
@@ -863,6 +866,8 @@ class Subcontracting(Document):
 			production_done_quantity = doc.production_done_quantity
 			updated_value = getVal(production_done_quantity) + getVal(i.in_quantity)
 			doc.production_done_quantity = updated_value
+			if doc.production_quantity < doc.production_done_quantity :
+				frappe.throw(str('production_done_quantity is should not be greater than production_quantity'))
 			if doc.production_done_quantity == doc.production_quantity:
 				doc.out_done = True
 			doc.save()

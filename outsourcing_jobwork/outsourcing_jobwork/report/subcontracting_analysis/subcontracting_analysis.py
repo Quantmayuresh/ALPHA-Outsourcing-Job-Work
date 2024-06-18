@@ -43,7 +43,7 @@ def get_col(filters):
             "fieldname": "rw_quantity","fieldtype": "Float","label": "RW QTY"
         },
         {
-            "fieldname": "production_quantity","fieldtype": "Float","label": "Total Receipts"
+            "fieldname": "prod_quantity","fieldtype": "Float","label": "Total Receipts"
         },
         {
             "fieldname": "production_remaining_quantity","fieldtype": "Float","label": "Balance"
@@ -73,23 +73,67 @@ def get_data(filters):
     group_by = filters.get("group_by")
 
     sql_query = """
-                SELECT Date, warehouse, supplier_name, raw_item_code, raw_item_name, SUM(ok_quantity) AS ok_quantity, SUM(cr_quantity) AS cr_quantity, SUM(mr_quantity) AS mr_quantity, SUM(as_it_is_quantity) AS as_it_is_quantity, SUM(rw_quantity) AS rw_quantity, SUM(production_quantity) AS production_quantity, SUM(production_out_quantity) AS production_out_quantity, weight_per_unit, 0 AS production_remaining_quantity
+            SELECT 
+                Date, 
+                warehouse, 
+                supplier_name, 
+                raw_item_code, 
+                raw_item_name, 
+                SUM(ok_quantity) AS ok_quantity, 
+                SUM(cr_quantity) AS cr_quantity, 
+                SUM(mr_quantity) AS mr_quantity, 
+                SUM(as_it_is_quantity) AS as_it_is_quantity, 
+                SUM(rw_quantity) AS rw_quantity, 
+                SUM(prod_quantity) AS prod_quantity, 
+                SUM(production_out_quantity) AS production_out_quantity, 
+                weight_per_unit, 
+                0 AS production_remaining_quantity
             FROM (
-                SELECT sc.posting_date AS Date, sc.source_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, bos.ok_quantity, bos.cr_quantity, bos.mr_quantity, bos.as_it_is_quantity, bos.rw_quantity, (bos.ok_quantity+bos.cr_quantity+bos.mr_quantity+bos.as_it_is_quantity+bos.rw_quantity) as production_quantity, bos.production_out_quantity, bos.weight_per_unit,production_remaining_quantity
+                SELECT 
+                    sc.posting_date AS Date, 
+                    sc.source_warehouse AS warehouse, 
+                    sc.supplier_name, 
+                    bos.raw_item_code, 
+                    bos.raw_item_name, 
+                    bos.ok_quantity, 
+                    bos.cr_quantity, 
+                    bos.mr_quantity, 
+                    bos.as_it_is_quantity, 
+                    bos.rw_quantity, 
+                    (bos.ok_quantity + bos.cr_quantity + bos.mr_quantity + bos.as_it_is_quantity + bos.rw_quantity) AS prod_quantity, 
+                    0 AS production_out_quantity, 
+                    bos.weight_per_unit, 
+                    0 AS production_remaining_quantity
                 FROM 
                     `tabBifurcation Out Subcontracting` AS bos
-                LEFT JOIN 
+                INNER JOIN 
                     `tabSubcontracting` sc ON sc.name = bos.parent
                 WHERE 
                     sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
+
                 UNION ALL
 
-                SELECT sc.posting_date AS Date, sc.target_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, 0 AS ok_quantity, 0 AS cr_quantity, 0 AS mr_quantity,0 AS as_it_is_quantity, 0 AS rw_quantity, 0 AS production_quantity, bos.production_quantity AS production_out_quantity, bos.weight_per_unit,0 AS production_remaining_quantity
+                SELECT 
+                    sc.posting_date AS Date, 
+                    sc.target_warehouse AS warehouse, 
+                    sc.supplier_name, 
+                    bos.raw_item_code, 
+                    bos.raw_item_name, 
+                    0 AS ok_quantity, 
+                    0 AS cr_quantity, 
+                    0 AS mr_quantity, 
+                    0 AS as_it_is_quantity, 
+                    0 AS rw_quantity, 
+                    0 AS prod_quantity, 
+                    bos.production_quantity AS production_out_quantity, 
+                    bos.weight_per_unit, 
+                    0 AS production_remaining_quantity
                 FROM 
                     `tabSubcontracting` AS sc
-                LEFT JOIN 
+                INNER JOIN 
                     `tabItems Subcontracting` bos ON sc.name = bos.parent
-                WHERE sc.in_or_out = 'OUT' AND sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
+                WHERE 
+                    sc.in_or_out = 'OUT' AND sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
             ) AS combined_results
             GROUP BY  
                 warehouse,
@@ -97,7 +141,8 @@ def get_data(filters):
                 raw_item_code, 
                 raw_item_name, 
                 weight_per_unit;
-                """
+            """
+
 
     conditions = []
     params = [comp, from_date, to_date]
@@ -131,9 +176,9 @@ def get_data(filters):
         opening_qty = get_all_available_quantity(entry['raw_item_code'], warehouse, filters)
         entry['opening_qty'] = opening_qty
         entry['total_despatch_qty'] = entry['opening_qty'] + entry['production_out_quantity']
-        entry['total_weight'] = entry['weight_per_unit'] * entry['production_quantity']
+        entry['total_weight'] = entry['weight_per_unit'] * entry['prod_quantity']
         entry['total_balance_weight'] = entry['weight_per_unit'] * entry['total_despatch_qty']
-        entry['production_remaining_quantity'] = entry['total_despatch_qty'] - entry['production_quantity']
+        entry['production_remaining_quantity'] = entry['total_despatch_qty'] - entry['prod_quantity']
 
 
     if group_by == "Group By Supplier":
@@ -149,7 +194,7 @@ def get_data(filters):
             'mr_quantity': 0.0,
             'as_it_is_quantity': 0.0,
             'rw_quantity': 0.0,
-            'production_quantity': 0.0,
+            'prod_quantity': 0.0,
             'production_out_quantity': 0.0,
             'production_remaining_quantity': 0.0,
             'weight_per_unit': 0.0,
@@ -186,7 +231,7 @@ def get_data(filters):
             'mr_quantity': 0.0,
             'as_it_is_quantity': 0.0,
             'rw_quantity': 0.0,
-            'production_quantity': 0.0,
+            'prod_quantity': 0.0,
             'production_out_quantity': 0.0,
             'production_remaining_quantity': 0.0,
             'weight_per_unit': 0.0,
@@ -240,7 +285,33 @@ def get_all_available_quantity(item_code, warehouse, filters):
 
 
 
+# sql_query = """
+#     SELECT Date, warehouse, supplier_name, raw_item_code, raw_item_name, SUM(ok_quantity) AS ok_quantity, SUM(cr_quantity) AS cr_quantity, SUM(mr_quantity) AS mr_quantity, SUM(as_it_is_quantity) AS as_it_is_quantity, SUM(rw_quantity) AS rw_quantity, SUM(production_quantity) AS production_quantity, SUM(production_out_quantity) AS production_out_quantity, weight_per_unit, 0 AS production_remaining_quantity
+# FROM (
+#     SELECT sc.posting_date AS Date, sc.source_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, bos.ok_quantity, bos.cr_quantity, bos.mr_quantity, bos.as_it_is_quantity, bos.rw_quantity, (bos.ok_quantity+bos.cr_quantity+bos.mr_quantity+bos.as_it_is_quantity+bos.rw_quantity) as production_quantity, bos.production_out_quantity, bos.weight_per_unit,production_remaining_quantity
+#     FROM 
+#         `tabBifurcation Out Subcontracting` AS bos
+#     INNER JOIN 
+#         `tabSubcontracting` sc ON sc.name = bos.parent
+#     WHERE 
+#         sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
+        
+#     UNION ALL
 
+#     SELECT sc.posting_date AS Date, sc.target_warehouse as warehouse, sc.supplier_name, bos.raw_item_code, bos.raw_item_name, 0 AS ok_quantity, 0 AS cr_quantity, 0 AS mr_quantity,0 AS as_it_is_quantity, 0 AS rw_quantity, 0 AS production_quantity, bos.production_quantity AS production_out_quantity, bos.weight_per_unit,0 AS production_remaining_quantity
+#     FROM 
+#         `tabSubcontracting` AS sc
+#     INNER JOIN 
+#         `tabItems Subcontracting` bos ON sc.name = bos.parent
+#     WHERE sc.in_or_out = 'OUT' AND sc.company = %s AND DATE(sc.posting_date) BETWEEN %s AND %s AND sc.docstatus = 1 {condition}
+# ) AS combined_results
+# GROUP BY  
+#     warehouse,
+#     supplier_name, 
+#     raw_item_code, 
+#     raw_item_name, 
+#     weight_per_unit;
+#     """
 
 
 

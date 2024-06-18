@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
  "creation": "2024-05-15 12:08:07.713002",
  "disable_prepared_report": 0,
@@ -10,14 +10,16 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "Phadke  Ferrocast Pvt. Ltd.",
- "modified": "2024-05-15 12:10:37.121330",
+ "modified": "2024-06-18 22:29:42.450039",
  "modified_by": "Administrator",
  "module": "Outsourcing JobWork",
  "name": "Subcontracting Analysis",
  "owner": "abub.patel@erpdata.in",
  "prepared_report": 0,
+ "query": "",
  "ref_doctype": "Subcontracting",
  "report_name": "Subcontracting Analysis",
+ "report_script": "",
  "report_type": "Script Report",
  "roles": [
   {
